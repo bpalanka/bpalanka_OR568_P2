@@ -130,5 +130,3 @@ python nn_pattern.py
 1. Run `preprocess.py`
 2. Run `NN_model.py`
 3. Run `NN_pattern.py`
-4. Run `SVM_model.py`
-5. Run `SVM_pattern.py`
