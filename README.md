@@ -1,138 +1,133 @@
-# Bank Fraud Detection Analysis
+# Bank Fraud Detection Using Neural Networks
 
 ## Project Overview
 
-This project builds a bank fraud detection pipeline using data preprocessing, exploratory data analysis (EDA), and a deep learning model. The main objective is to determine whether transaction-level features can be used to predict fraudulent activity and to analyze patterns in both actual fraud labels and model-predicted fraud risk across different behavioral and temporal dimensions.
+This project implements an end-to-end machine learning pipeline for detecting fraudulent bank transactions using a deep neural network. The system combines data preprocessing, exploratory data analysis (EDA), feature engineering, and model-based behavioral analysis to identify patterns associated with fraudulent activity.
 
-A neural network is used because fraud detection involves complex, nonlinear relationships between variables such as transaction amount, time, customer profile, device type, and behavioral patterns. These interactions are difficult for traditional linear models to capture effectively.
+The primary objective is not only to classify fraud but also to understand how fraud risk varies across time, demographic, and behavioral dimensions using model predictions.
 
-The project separates:
-- Actual fraud analysis (ground truth)
-- Model-based fraud risk analysis (predictions)
+A neural network is used due to its ability to capture nonlinear relationships between transaction features such as amount, time, account behavior, and device usage, which are difficult for traditional linear models to learn effectively.
 
 ---
 
 ## Dataset
 
-Dataset source: Kaggle  
-Dataset link: https://www.kaggle.com/datasets/orangelmendez/bank-fraud  
+Source: Kaggle  
+Dataset: https://www.kaggle.com/datasets/orangelmendez/bank-fraud  
 
-The dataset contains transaction-level banking data including:
+The dataset contains transaction-level banking records including:
 
 - Customer demographics
-- Account information
+- Account attributes
 - Transaction details
 - Device and location information
-- Fraud labels
+- Fraud labels (binary target)
 
 ---
 
-## Files Included
+## Project Structure
 
 ### preprocess.py
-Handles data cleaning, feature engineering, and exploratory data analysis.
+Responsible for data cleaning, feature engineering, and exploratory analysis.
 
+Key responsibilities:
 - Loads raw dataset from Kaggle
-- Cleans missing and irrelevant columns
+- Removes irrelevant identifiers and missing values
 - Encodes categorical variables using one-hot encoding
-- Converts date and time fields into numerical features
-- Creates additional features:
-  - Day of week
+- Converts date and time features into numerical formats
+- Creates additional engineered features:
+  - Transaction day of week
   - Weekend indicator
-  - Time-based grouping (used later in analysis)
-- Generates exploratory visualizations (based on actual fraud labels):
+  - Time-based grouping (used only for analysis)
+- Generates exploratory visualizations:
   - Fraud rate by weekday vs weekend
-  - Fraud rate by day of week (Monday–Sunday)
+  - Fraud rate by day of week
   - Fraud rate by gender
   - Fraud rate by device type
   - Fraud rate by time of day
-- Saves final cleaned dataset as `cleaned_bankFraud.csv`
-- Saves feature order as `feature_order.pkl` for model consistency
+- Saves processed dataset as `cleaned_bankFraud.csv`
+- Saves feature ordering for model consistency (`feature_order.pkl`)
+
+Note: Some engineered variables (e.g., DayName, Period) are used only for EDA and are excluded from model training to prevent data leakage.
 
 ---
 
 ### nn_model.py
-Trains the neural network fraud detection model.
+Implements and trains the deep learning model for fraud classification.
 
+Key components:
 - Loads cleaned dataset
-- Splits data into training and testing sets using stratified sampling
+- Removes non-numeric / EDA-only features before training
+- Splits data using stratified sampling (80/20)
 - Applies feature scaling using StandardScaler
-- Builds a deep neural network with:
+- Builds a fully connected neural network with:
   - Dense layers
   - Batch normalization
   - Dropout regularization
 - Uses binary cross-entropy loss for classification
-- Applies early stopping to prevent overfitting
+- Applies early stopping to reduce overfitting
 - Saves trained model as `fraud_neural_network.h5`
 - Saves scaler as `scaler.pkl`
+
+This stage focuses purely on predictive learning using numerical, structured features.
 
 ---
 
 ### nn_pattern.py
-Performs fraud risk analysis using model predictions.
+Performs behavioral analysis using model predictions.
 
+Key responsibilities:
 - Loads trained model, scaler, and feature order
-- Generates fraud probability predictions for each transaction (`Pred_Prob`)
-- Analyzes model-learned fraud patterns using predictions:
-  - Predicted fraud risk by weekday vs weekend
-  - Predicted fraud risk by day of week (Monday–Sunday)
-  - Predicted fraud risk by gender
-  - Predicted fraud risk by device type
-  - Predicted fraud risk by time of day
+- Generates fraud probability predictions (`Pred_Prob`)
+- Analyzes fraud risk patterns using aggregated predictions:
+  - Weekday vs weekend risk
+  - Day of week trends
+  - Gender-based risk distribution
+  - Device-based risk patterns
+  - Time-of-day risk variation
 
-All visualizations in this file are based on model predictions rather than actual labels.
+Unlike preprocessing analysis, this file focuses entirely on model-inferred behavior rather than actual labels.
 
 ---
 
 ## Methods Used
 
-- Data cleaning and preprocessing
-- Feature engineering (temporal + behavioral features)
-- Exploratory data analysis (EDA)
-- One-hot encoding
-- Feature scaling
+- Data preprocessing and cleaning
+- Feature engineering (temporal and behavioral)
+- One-hot encoding for categorical variables
+- Feature scaling (StandardScaler)
 - Deep neural network classification
+- Stratified train-test splitting
+- Early stopping for regularization
 - Prediction-based behavioral analysis
 
 ---
 
-## Main Findings
+## Key Insights
 
-- Fraud patterns are nonlinear and not strongly visible in raw feature correlations.
-- Neural network captures hidden interactions between transaction features.
-- Aggregated prediction analysis reveals meaningful behavioral patterns.
-- Time-based, demographic, and device-related features show variation in fraud risk.
-- Model-based analysis provides different insights compared to raw label analysis.
-
----
-
-## Key Insight
-
-The neural network learns complex interactions between transaction behavior, timing, device usage, and user attributes. While individual predictions may appear noisy, aggregated model outputs reveal consistent fraud risk patterns across groups.
-
-This distinction between:
-- Actual fraud distribution
-- Predicted fraud probability distribution
-
-is central to understanding model behavior.
+- Fraud behavior is nonlinear and not strongly visible through simple correlations.
+- Neural networks capture complex interactions between transaction attributes.
+- Aggregated prediction analysis reveals clearer behavioral patterns than raw labels alone.
+- Time, device type, and demographic features influence predicted fraud risk differently across segments.
+- Separating EDA features from training data improves model reliability and prevents data leakage.
 
 ---
 
-## Dependencies
+## Technologies Used
 
-- pandas
-- numpy
-- scikit-learn
-- tensorflow
-- matplotlib
-- seaborn
-- kagglehub
+- Python
+- Pandas, NumPy
+- Scikit-learn
+- TensorFlow / Keras
+- Matplotlib
+- Seaborn
+- KaggleHub
 
 ---
 
-## Running the Project
+## How to Run
 
-Run files in order:
+Execute files in the following order:
 
 ```bash
 python preprocess.py
@@ -144,8 +139,15 @@ python nn_pattern.py
 
 ## Output Files
 
-- cleaned_bankFraud.csv → processed dataset  
-- fraud_neural_network.h5 → trained neural network model  
-- scaler.pkl → feature scaler  
-- feature_order.pkl → feature alignment reference
-```
+- `cleaned_bankFraud.csv` → processed dataset  
+- `fraud_neural_network.h5` → trained neural network model  
+- `scaler.pkl` → feature scaler  
+- `feature_order.pkl` → feature alignment reference  
+
+---
+
+## Project Summary
+
+This project demonstrates a full machine learning workflow from raw financial transaction data to a trained neural network model and behavioral pattern analysis. It highlights the importance of feature engineering, data leakage prevention, and post-model interpretability through prediction-based aggregation analysis.
+
+The final system not only predicts fraud but also provides insights into how fraud risk varies across different user and transaction contexts.
